@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agiliza - Conversor de Planilhas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container-main">
+        <div class="header">
+          <div class="logo-agiliza">
+             <img src="./assets/logo_dimensionada.png" alt="Logo Agiliza">
+          </div>
+           <div class="texto-header">
+             <p>Converta seus arquivos para o modelo do GamaSoft</p>
+           </div>
+        </div>
+
+        <div class="content">
+            <!-- Alerta de Erro -->
+            <div class="error-alert alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Erro!</strong> <span id="error-message"></span>
+                <button type="button" class="btn-close alert-close-btn" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Alerta de Sucesso -->
+            <div class="success-alert alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Sucesso!</strong> <span id="success-message"></span>
+                <button type="button" class="btn-close alert-close-btn" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Alerta de Tesseract -->
+            <div class="tesseract-alert alert alert-warning alert-dismissible fade show" role="alert" id="tesseractAlert" style="display: none;">
+                <strong><i class="bi bi-exclamation-triangle"></i> Atenção!</strong> 
+                Para processar imagens e screenshots, é necessário instalar o <strong>Tesseract OCR</strong>. 
+                <a href="javascript:void(0)" onclick="mostrarInstrucoesTesseract()">Clique aqui para ver as instruções de instalação.</a>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Input de Arquivo -->
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" multiple accept=".txt,.pdf,.jpg,.jpeg,.png,.bmp">
+                <div class="file-input-box" id="dropZone">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <p>Clique ou arraste arquivos aqui</p>
+                    <small>Aceita arquivos TXT, PDF e Imagens (JPG, PNG, BMP)</small>
+                </div>
+            </div>
+
+            <!-- Lista de Arquivos -->
+            <div class="file-list" id="fileListContainer" style="display: none;">
+                <h5>
+                    <i class="bi bi-file-check"></i>
+                    Arquivos Selecionados: <span id="fileCount">0</span>
+                </h5>
+                <div id="fileList"></div>
+            </div>
+
+            <!-- Estado Vazio -->
+            <div class="empty-state" id="emptyState">
+                <i class="bi bi-inbox"></i>
+                <p>Nenhum arquivo selecionado</p>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" id="loadingContainer">
+                <div class="loading-spinner">
+                    <i class="bi bi-hourglass-split spinner-animation" style="font-size: 2.5rem; color: #0074FF;"></i>
+                </div>
+                <div class="loading-text">Processando seus arquivos...</div>
+                <small style="color: #999; margin-top: 8px;">Por favor, aguarde enquanto convertemos seus
+                    arquivos</small>
+            </div>
+
+            <!-- Botões -->
+            <div class="button-group" id="buttonGroup" style="display: none;">
+                <button type="button" class="btn-custom btn-generate" id="generateBtn">
+                    <i class="bi bi-download"></i>
+                    Gerar Excel
+                </button>
+                <button type="button" class="btn-custom btn-clear" id="clearBtn">
+                    <i class="bi bi-trash3"></i>
+                    Limpar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Modelo -->
+    <div class="modal fade" id="modelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-list-check"></i>
+                        Selecione o Modelo de Planilha
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Escolha qual modelo de planilha você deseja usar:</p>
+                    <div class="model-options">
+                        <div class="model-card" data-model="winthor">
+                            <i class="bi bi-receipt"></i>
+                            <h6>Preço Winthor</h6>
+                        </div>
+                        <div class="model-card" data-model="planilha">
+                            <i class="bi bi-calculator"></i>
+                            <h6>Preço Planilha</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Instruções Tesseract -->
+    <div class="modal fade" id="tesseractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-download"></i>
+                        Instalar Tesseract OCR
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Para processar imagens, você precisa instalar o Tesseract OCR.</h6>
+                    <hr>
+                    <h6>Opção 1: Scoop (Recomendado)</h6>
+                    <p>Abra PowerShell e execute:</p>
+                    <code style="background: #f5f5f5; padding: 10px; display: block; border-radius: 4px;">
+                        scoop install tesseract
+                    </code>
+                    
+                    <hr>
+                    <h6>Opção 2: Chocolatey</h6>
+                    <p>Abra PowerShell como Admin e execute:</p>
+                    <code style="background: #f5f5f5; padding: 10px; display: block; border-radius: 4px;">
+                        choco install tesseract -y
+                    </code>
+                    
+                    <hr>
+                    <h6>Opção 3: Download Manual</h6>
+                    <p>Visite <a href="https://github.com/UB-Mannheim/tesseract/wiki" target="_blank">https://github.com/UB-Mannheim/tesseract/wiki</a> e instale o executável.</p>
+                    
+                    <hr>
+                    <h6>Depois de instalar:</h6>
+                    <ol>
+                        <li>Reinicie o servidor (reinicie esta aplicação)</li>
+                        <li>Tente fazer upload da imagem novamente</li>
+                        <li>Pronto! OCR vai funcionar automaticamente</li>
+                    </ol>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
