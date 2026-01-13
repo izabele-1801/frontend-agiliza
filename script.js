@@ -14,6 +14,9 @@ const successAlert = document.querySelector('.success-alert');
 const errorMessage = document.getElementById('error-message');
 const successMessage = document.getElementById('success-message');
 
+const serverUrl = 'http://147.93.15.151'
+
+
 let selectedFiles = [];
 let selectedModel = null;
 const modelModal = new bootstrap.Modal(document.getElementById('modelModal'), {
@@ -162,16 +165,16 @@ generateBtn.addEventListener('click', async () => {
         });
         formData.append('model', selectedModel);
 
-        console.log('Enviando requisição para http://localhost:5000/api/upload');
+        console.log(`Enviando requisição para ${serverUrl}/api/upload`);
         console.log('Modelo:', selectedModel);
         console.log('Arquivos:', selectedFiles.map(f => f.name));
 
-        const response = await fetch('http://localhost:5000/api/upload', {
+        const response = await fetch(`${serverUrl}/api/upload`, {
             method: 'POST',
             body: formData
         }).catch(error => {
             console.error('Erro de fetch:', error);
-            throw new Error(`Falha ao conectar ao servidor (localhost:5000): ${error.message}`);
+            throw new Error(`Falha ao conectar ao servidor (${serverUrl}): ${error.message}`);
         });
 
         console.log('Response status:', response.status);
